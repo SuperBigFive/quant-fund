@@ -14,6 +14,10 @@ diag_*.py
 # 同步冲突文件
 *(SFConflict*)*
 
+# 隐私文件
+.claude/
+holdings.txt
+
 # Python
 __pycache__/
 *.pyc
