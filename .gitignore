@@ -1,0 +1,33 @@
+# 环境变量（含密钥）
+.env
+
+# 缓存数据
+cache/
+
+# 日志文件
+*.log
+
+# 临时输出 / 诊断脚本
+report_output.txt
+diag_*.py
+
+# 同步冲突文件
+*(SFConflict*)*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# 虚拟环境
+venv/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# 系统文件
+.DS_Store
+Thumbs.db

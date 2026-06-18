@@ -1,0 +1,80 @@
+# PushPlus 配置（token 请放在 .env 文件中，不要提交到版本控制）
+pushplus:
+  token: ""  # 实际 token 从环境变量 PUSHPLUS_TOKEN 读取
+  topic: ""  # PushPlus 群组编码（可选，需先在 pushplus.plus 创建群组）
+
+# 策略参数
+strategy:
+  ma_period: 200
+  volatility_window: 20
+  volatility_max_ratio: 1.5
+  target_annual_vol: 0.10
+  min_consecutive_declines: 3
+  max_consecutive_declines: 5
+  single_day_max_decline: -0.03
+  stop_loss_pct: -0.07
+  below_ma_clear: true
+  no_profit_exit_days: 15
+  take_profit_partial_pct: 0.05
+  take_profit_full_pct: 0.08
+  pullback_from_peak_pct: 0.02
+  monthly_drawdown_limit: -0.05
+  consecutive_stop_loss_limit: 3
+
+# 基金池筛选
+universe:
+  min_aum_yi: 5            # 排除规模不足 5 亿的小基金
+  min_fund_age_days: 365   # 排除成立不足 1 年的新基金
+  include_types:
+    - "股票指数"
+    - "联接基金"
+    - "ETF"
+    - "ETF联接"
+    - "LOF"
+    - "债券型"
+    - "混合型"
+    - "QDII"
+  exclude_keywords:
+    - "医药"
+    - "医疗"
+    - "科技"
+    - "新能源"
+    - "白酒"
+    - "军工"
+    - "国防"
+    - "半导体"
+    - "芯片"
+    - "消费"
+    - "金融"
+    - "银行"
+    - "证券"
+    - "地产"
+    - "房地产"
+    - "传媒"
+    - "环保"
+    - "农业"
+    - "钢铁"
+    - "煤炭"
+    - "有色"
+    - "汽车"
+    - "电力"
+    - "通信"
+    - "5G"
+    - "人工智能"
+    - "机器人"
+    - "游戏"
+    - "食品"
+    - "养殖"
+    - "光伏"
+    - "锂电"
+    - "稀土"
+  exclude_name_patterns:
+    - "FOF"
+    - "基金中基金"
+    - "货币"
+    - "理财"
+
+# 缓存设置
+cache:
+  universe_refresh_days: 1
+  nav_history_days: 500
