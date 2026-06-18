@@ -101,17 +101,25 @@ def run_pipeline(config, holding_codes, use_estimates=True, refresh_universe=Fal
 
     # 基金池缓存
     cache_path = os.path.join(os.path.dirname(__file__), "cache", "filtered_universe.json")
+    refresh_days = config.get("cache", {}).get("universe_refresh_days", 1)
     universe = None
+    cache_valid = False
 
-    if not refresh_universe and os.path.exists(cache_path):
+    if os.path.exists(cache_path):
         try:
-            with open(cache_path, "r", encoding="utf-8") as f:
-                universe = json.load(f)
-            logger.info("[1/6] 从缓存加载基金池: %d 只", len(universe))
-        except (json.JSONDecodeError, KeyError):
+            mtime = datetime.fromtimestamp(os.path.getmtime(cache_path))
+            age_days = (datetime.now() - mtime).days
+            if not refresh_universe and age_days < refresh_days:
+                with open(cache_path, "r", encoding="utf-8") as f:
+                    universe = json.load(f)
+                logger.info("[1/6] 从缓存加载基金池: %d 只 (缓存 %d 天)", len(universe), age_days)
+                cache_valid = True
+            else:
+                logger.info("[1/6] 缓存已过期 (%d 天 ≥ %d 天)，重新筛选", age_days, refresh_days)
+        except (json.JSONDecodeError, KeyError, ValueError):
             logger.warning("  缓存损坏，将重新筛选")
 
-    if universe is None:
+    if not cache_valid:
         logger.info("[1/6] 筛选基金池...")
         universe = filter_universe(fetcher, config)
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
