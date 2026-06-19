@@ -1,7 +1,7 @@
 from scorer import classify_holding
 
 
-def analyze_holdings(holding_codes, indicators, strategy):
+def analyze_holdings(holding_codes, indicators, strategy, rules=None):
     """Classify each holding using rule-based logic from scorer."""
     results = []
     for code in holding_codes:
@@ -15,7 +15,7 @@ def analyze_holdings(holding_codes, indicators, strategy):
             continue
 
         sig = indicators[code]
-        action, reason = classify_holding(sig)
+        action, reason = classify_holding(sig, rules=rules)
 
         results.append({
             "code": code,

@@ -21,6 +21,59 @@ strategy:
   monthly_drawdown_limit: -0.05
   consecutive_stop_loss_limit: 3
 
+  # 买卖规则参数（可在回测中扫描优化）
+  rules:
+    buy:
+      P1_golden_pullback:
+        rsi_max: 40
+        decline_min: 3
+        decline_max: 5
+      P2_oversold_bounce:
+        rsi_max: 30
+        max_drawdown_min: 0.08
+      P3_trend_pullback:
+        decline_min: 3
+        decline_max: 5
+        sharpe_min: 0.5
+      P4_low_vol_dip:
+        rsi_max: 35
+        vol_ratio_max: 1.0
+      P5_deep_value:
+        max_drawdown_min: 0.12
+        rsi_max: 35
+      P6_quality_dip:
+        sharpe_min: 1.0
+        decline_min: 2
+        decline_max: 5
+      P7_vol_contraction:
+        vol_ratio_max: 0.6
+        pullback_min: 0.03
+      P8_strong_trend_dip:
+        trend_strength_min: 0.05
+        decline_min: 2
+
+    sell:
+      S1_trend_break:
+        below_ma_clear: true
+      S2_accelerating:
+        max_drawdown_min: 0.10
+        vol_ratio_min: 1.5
+      S3_overbought:
+        rise_min: 5
+        rsi_min: 70
+      S4_risk_decay:
+        sharpe_max: 0.0
+        monthly_return_max: -0.05
+      S5_peak_retreat:
+        pullback_min: 0.05
+        decline_min: 4
+      S6_quality_collapse:
+        sharpe_max: -1.0
+      S7_vol_explosion:
+        vol_ratio_min: 2.0
+      S8_slow_bleed:
+        decline_min: 6
+
 # 基金池筛选
 universe:
   min_aum_yi: 5            # 排除规模不足 5 亿的小基金
@@ -81,3 +134,13 @@ universe:
 cache:
   universe_refresh_days: 1
   nav_history_days: 500
+
+# 回测设置
+backtest:
+  initial_capital: 100000       # 初始资金
+  max_holdings: 8               # 最多同时持有基金数
+  max_single_position: 0.05     # 单只基金最大仓位
+  max_total_position: 0.80      # 总仓位上限
+  subscription_fee: 0.0015      # 默认申购费率（按基金类型区分，详见 portfolio.py）
+  redemption_fee_normal: 0.005  # 正常赎回费率
+  redemption_fee_short: 0.015   # 短期赎回费（持有<7天）

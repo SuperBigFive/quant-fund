@@ -158,8 +158,9 @@ def run_pipeline(config, holding_codes, use_estimates=True, refresh_universe=Fal
     )
 
     logger.info("[4/6] 规则匹配...")
-    buy_top10 = select_buy_candidates(indicators)
-    sell_top10 = select_sell_candidates(indicators, holding_codes)
+    rules_cfg = config["strategy"].get("rules")
+    buy_top10 = select_buy_candidates(indicators, rules=rules_cfg)
+    sell_top10 = select_sell_candidates(indicators, holding_codes, rules=rules_cfg)
     name_map = {f["code"]: f["name"] for f in universe}
     for item in buy_top10 + sell_top10:
         if item["code"] not in name_map:
@@ -167,7 +168,7 @@ def run_pipeline(config, holding_codes, use_estimates=True, refresh_universe=Fal
         item["name"] = name_map.get(item["code"], item["code"])
 
     logger.info("[5/6] 分析持仓...")
-    holdings_advice = analyze_holdings(holding_codes, indicators, strategy)
+    holdings_advice = analyze_holdings(holding_codes, indicators, strategy, rules=rules_cfg)
     for item in holdings_advice:
         if item["name"] == item["code"]:
             item["name"] = name_map.get(
@@ -249,7 +250,80 @@ def parse_args():
         "--refresh-universe", action="store_true",
         help="强制重新拉取全量基金数据并重建基金池（默认使用缓存）",
     )
+    parser.add_argument(
+        "--backtest", action="store_true",
+        help="运行策略回测（基于历史净值数据）",
+    )
+    parser.add_argument(
+        "--bt-start", type=str, default=None,
+        help="回测起始日期 YYYY-MM-DD（默认：自动）",
+    )
+    parser.add_argument(
+        "--bt-end", type=str, default=None,
+        help="回测结束日期 YYYY-MM-DD（默认：昨天）",
+    )
+    parser.add_argument(
+        "--bt-capital", type=float, default=None,
+        help="回测初始资金（默认：100000）",
+    )
+    parser.add_argument(
+        "--bt-report", action="store_true",
+        help="回测时输出 CSV 报告文件",
+    )
     return parser.parse_args()
+
+
+def run_backtest(config, holding_codes, args):
+    """执行策略回测。"""
+    from backtest.engine import BacktestEngine
+    from backtest.report import generate_report as bt_generate_report
+
+    bt_config = config.get("backtest", {})
+    initial_capital = bt_config.get("initial_capital", 100000)
+
+    # 加载基金池缓存
+    cache_path = os.path.join(os.path.dirname(__file__), "cache", "filtered_universe.json")
+    if not os.path.exists(cache_path):
+        logger.error("基金池缓存不存在，请先运行一次主流程生成缓存")
+        sys.exit(1)
+
+    with open(cache_path, "r", encoding="utf-8") as f:
+        universe = json.load(f)
+    logger.info("加载基金池: %d 只", len(universe))
+
+    # 拉取净值数据
+    fetcher = DataFetcher(config)
+    universe_codes = [f["code"] for f in universe]
+    all_codes = holding_codes + [c for c in universe_codes if c not in holding_codes]
+    nav_data = fetcher.fetch_nav_batch(all_codes, config["cache"]["nav_history_days"])
+    logger.info("净值数据: %d 只基金", len(nav_data))
+
+    # 解析日期
+    start_date = None
+    end_date = None
+    if args.bt_start:
+        start_date = datetime.strptime(args.bt_start, "%Y-%m-%d")
+    if args.bt_end:
+        end_date = datetime.strptime(args.bt_end, "%Y-%m-%d")
+    if args.bt_capital:
+        initial_capital = args.bt_capital
+
+    # 执行回测
+    engine = BacktestEngine(
+        config=config,
+        holding_codes=holding_codes,
+        nav_data=nav_data,
+        universe=universe,
+        start_date=start_date,
+        end_date=end_date,
+        initial_capital=initial_capital,
+    )
+    result = engine.run()
+
+    # 输出报告
+    report = bt_generate_report(result)
+    print(report)
+    logger.info("CSV 报告已保存到 cache/backtest_daily.csv 和 cache/backtest_trades.csv")
 
 
 def main():
@@ -263,6 +337,11 @@ def main():
 
     config = load_config()
     holding_codes = load_holdings()
+
+    if args.backtest:
+        run_backtest(config, holding_codes, args)
+        return
+
     logger.info("=== fund-metrics ===")
     logger.info("运行时间: %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
     logger.info("持仓基金: %d 只", len(holding_codes))
