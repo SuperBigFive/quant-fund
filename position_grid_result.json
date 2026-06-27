@@ -1,0 +1,30 @@
+{
+  "params": {
+    "base_pos": 0.7,
+    "trend_bias": 0.2,
+    "rsi_oversold": 30,
+    "rsi_overbought": 70,
+    "rsi_bonus": 0.1,
+    "buy_weight": 0.05,
+    "sell_weight": 0.15,
+    "dd_penalty": 0.1,
+    "dd_threshold": 0.08,
+    "min_pos": 0.3,
+    "max_pos": 1.0,
+    "min_trade_pct": 0.2,
+    "buy_cooldown": 3
+  },
+  "results": {
+    "win2_pct": 0.717391304347826,
+    "non_bull_pct": 0.6304347826086957,
+    "bull_exc": -0.025055382824024613,
+    "non_bull_exc": 0.060101289699480594,
+    "bm_exc": [
+      -0.048843345444150144,
+      -0.028815385580758024,
+      0.018580727283282528,
+      0.04453754711434044
+    ],
+    "avg_trades": 23.347368421052632
+  }
+}

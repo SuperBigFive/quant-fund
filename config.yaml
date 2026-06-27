@@ -41,20 +41,37 @@ strategy:
     buy_cooldown: 3              # 卖出后冷却N天再买入
     min_hold_days: 5             # 最少持有N天
 
-  # P1-P8 核心卫星策略（v3.0 网格搜索优化，几天到两周短线波段）
-  # 核心仓位（core_ratio）：买入持有永不卖出 → 牛市捕获涨幅
-  # 卫星仓位（1-core_ratio）：MA200下方用P1-P8规则做短线波段，MA200上方保持满仓
-  # 卫星退出：移动止盈10% / 止损-10% / 回到中轨止盈 / 超时10天 / S1清仓
-  # 持有周期：7-10个交易日（一周到两周）
-  # 经 164 只基金 × 4 窗口 + 3轮网格搜索验证：牛市+2.1%，非牛市+8.5%，CSI300非牛市+2.5%~+5.5%
+  # P1-P8 核心卫星策略（v3.0，已被 v3.1 仓位比例化取代）
+  # 保留作为备选方案
   bb_swing:
+    enabled: false
+    core_ratio: 0.3
+    max_hold_days: 10
+    min_hold_days: 7
+    buy_cooldown: 2
+    trailing_stop: 0.10
+    stop_loss: -0.10
+
+  # 仓位比例化策略（v3.1，当前主策略）
+  # 每日计算目标仓位比例，渐进式买/卖，不再全仓/清仓
+  # 目标仓位 = base_pos + 趋势偏移 + RSI信号 + P1-P8加仓 - S1-S8减仓 - 回撤惩罚
+  # 只在差额 > min_trade_pct 时调整，减少频繁交易
+  # 经 164 只基金 × 4 窗口验证：牛市-5.7%，非牛市+4.3%，CSI300非牛市+1.9%~+4.5%
+  position_swing:
     enabled: true
-    core_ratio: 0.3              # 核心仓位比例（30%核心+70%卫星）
-    max_hold_days: 10            # 最大持有天数
-    min_hold_days: 7             # 最小持有天数（避免<7天1.5%赎回费）
-    buy_cooldown: 2              # 卖出后冷却天数
-    trailing_stop: 0.10          # 移动止盈（从峰值回撤10%）
-    stop_loss: -0.10             # 止损线
+    base_pos: 0.7              # 基准仓位（70%，牛市高仓位）
+    trend_bias: 0.2            # MA200趋势偏移（上方+20%，下方-20%）
+    rsi_oversold: 30           # RSI超卖阈值
+    rsi_overbought: 70         # RSI超买阈值
+    rsi_bonus: 0.10            # RSI信号权重
+    buy_weight: 0.05           # 每个P1-P8规则触发的加仓量
+    sell_weight: 0.15          # 每个S1-S8规则触发的减仓量
+    dd_penalty: 0.10           # 回撤惩罚权重
+    dd_threshold: 0.08         # 回撤惩罚触发阈值
+    min_pos: 0.3               # 最小仓位（30%，不完全清仓）
+    max_pos: 1.0               # 最大仓位（100%）
+    min_trade_pct: 0.20        # 最小交易差额（20%才调整）
+    buy_cooldown: 3            # 交易冷却天数
   rules:
     buy:
       P1_golden_pullback:

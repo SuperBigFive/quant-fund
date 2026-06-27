@@ -1,0 +1,62 @@
+加载 50 只基金...
+预计算 51 只基金
+
+=== 第1轮：基准仓位/趋势偏移/最小交易差额 ===
+  base=60% tb=5% mt=5%: bull=-18.1% nonbull=-1.1% CSI300_nb=-0.6% win2=37% trades=139 score=-0.21 ← BEST
+  base=60% tb=5% mt=10%: bull=-15.8% nonbull=-0.1% CSI300_nb=-3.3% win2=37% trades=98 score=-0.18 ← BEST
+  base=60% tb=5% mt=15%: bull=-14.8% nonbull=+0.7% CSI300_nb=+1.0% win2=46% trades=76 score=-0.13 ← BEST
+  base=60% tb=5% mt=20%: bull=-14.1% nonbull=+1.6% CSI300_nb=+2.0% win2=41% trades=53 score=-0.10 ← BEST
+  base=60% tb=10% mt=20%: bull=-12.9% nonbull=+1.9% CSI300_nb=+1.7% win2=43% trades=61 score=-0.08 ← BEST
+  base=60% tb=15% mt=20%: bull=-11.9% nonbull=+2.5% CSI300_nb=+1.6% win2=50% trades=69 score=-0.06 ← BEST
+  base=60% tb=20% mt=20%: bull=-8.2% nonbull=+4.4% CSI300_nb=+2.4% win2=57% trades=47 score=+0.02 ← BEST
+  base=70% tb=15% mt=20%: bull=-4.3% nonbull=+4.4% CSI300_nb=+2.4% win2=63% trades=26 score=+0.06 ← BEST
+  base=70% tb=20% mt=15%: bull=-4.1% nonbull=+4.5% CSI300_nb=+2.4% win2=67% trades=29 score=+0.06 ← BEST
+  base=70% tb=20% mt=20%: bull=-2.9% nonbull=+5.2% CSI300_nb=+4.9% win2=72% trades=24 score=+0.10 ← BEST
+
+第1轮最优: base=70% tb=20% mt=20%
+
+=== 第2轮：RSI阈值/买卖权重 ===
+  rsi_os=30 ob=60 bw=0.05 sw=0.08: bull=-3.0% nonbull=+5.2% CSI300_nb=+5.6% win2=67% trades=23 score=+0.10 ← BEST
+  rsi_os=30 ob=60 bw=0.05 sw=0.15: bull=-3.1% nonbull=+5.7% CSI300_nb=+6.4% win2=74% trades=24 score=+0.12 ← BEST
+  rsi_os=30 ob=65 bw=0.05 sw=0.15: bull=-2.7% nonbull=+5.8% CSI300_nb=+6.4% win2=74% trades=24 score=+0.12 ← BEST
+  rsi_os=30 ob=70 bw=0.05 sw=0.15: bull=-2.6% nonbull=+5.8% CSI300_nb=+6.3% win2=72% trades=24 score=+0.12 ← BEST
+
+第2轮最优: rsi_os=30 ob=70 bw=0.05 sw=0.15
+
+=== 第3轮：回撤惩罚/冷却期/最小仓位 ===
+  dd_pen=0.05 dd_thr=0.05 cd=2 min_pos=0%: bull=-3.5% nonbull=+5.5% CSI300_nb=+5.8% win2=72% trades=26 score=+0.10 ← BEST
+  dd_pen=0.05 dd_thr=0.05 cd=2 min_pos=30%: bull=-3.6% nonbull=+5.6% CSI300_nb=+5.8% win2=72% trades=26 score=+0.11 ← BEST
+  dd_pen=0.05 dd_thr=0.05 cd=3 min_pos=0%: bull=-3.0% nonbull=+5.7% CSI300_nb=+5.6% win2=74% trades=23 score=+0.11 ← BEST
+  dd_pen=0.05 dd_thr=0.05 cd=3 min_pos=30%: bull=-3.0% nonbull=+5.8% CSI300_nb=+5.6% win2=74% trades=23 score=+0.11 ← BEST
+  dd_pen=0.05 dd_thr=0.08 cd=3 min_pos=0%: bull=-2.6% nonbull=+5.7% CSI300_nb=+5.8% win2=74% trades=23 score=+0.12 ← BEST
+  dd_pen=0.05 dd_thr=0.12 cd=3 min_pos=0%: bull=-2.1% nonbull=+5.7% CSI300_nb=+6.0% win2=74% trades=23 score=+0.12 ← BEST
+  dd_pen=0.1 dd_thr=0.08 cd=3 min_pos=30%: bull=-2.5% nonbull=+6.0% CSI300_nb=+6.3% win2=72% trades=23 score=+0.13 ← BEST
+
+第3轮最优: dd_pen=0.1 dd_thr=0.08 cd=3 min_pos=30%
+
+============================================================
+最终最优参数组合
+============================================================
+  base_pos: 0.7
+  trend_bias: 0.2
+  rsi_oversold: 30
+  rsi_overbought: 70
+  rsi_bonus: 0.1
+  buy_weight: 0.05
+  sell_weight: 0.15
+  dd_penalty: 0.1
+  dd_threshold: 0.08
+  min_pos: 0.3
+  max_pos: 1.0
+  min_trade_pct: 0.2
+  buy_cooldown: 3
+
+结果:
+  ≥2窗口赢: 33/46 = 71.7%
+  非牛市双赢: 29/46 = 63.0%
+  牛市平均超额: -2.51%
+  非牛市平均超额: +6.01%
+  沪深300各窗口: ['-4.9%', '-2.9%', '+1.9%', '+4.5%']
+  平均交易笔数: 23
+
+结果已保存: position_grid_result.json
